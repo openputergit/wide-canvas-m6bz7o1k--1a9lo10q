@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Skeuomorphic Calculator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        .calculator {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            box-shadow: 20px 20px 60px #1a1a1a, -20px -20px 60px #2a2a2a;
+        }
+        .display {
+            background: linear-gradient(145deg, #97b99d, #749277);
+            font-family: "LCD", monospace;
+            text-shadow: 0 0 5px rgba(172, 255, 172, 0.5);
+        }
+        .calc-btn {
+            background: linear-gradient(145deg, #3a3a3a, #2a2a2a);
+            box-shadow: 5px 5px 10px #1a1a1a, -5px -5px 10px #3a3a3a;
+            transition: all 0.2s ease;
+        }
+        .calc-btn:active {
+            background: linear-gradient(145deg, #2a2a2a, #1a1a1a);
+            box-shadow: inset 5px 5px 10px #1a1a1a, inset -5px -5px 10px #3a3a3a;
+            transform: scale(0.95);
+        }
+        .operator {
+            background: linear-gradient(145deg, #4d3319, #2b1d0e);
+            box-shadow: 5px 5px 10px #1a1a1a, -5px -5px 10px #3a3a3a;
+        }
+        .operator:active {
+            background: linear-gradient(145deg, #2b1d0e, #4d3319);
+        }
+        @font-face {
+            font-family: 'LCD';
+            src: url('https://fonts.cdnfonts.com/css/lcd');
+        }
+    </style>
+</head>
+<body class="bg-gray-900 min-h-screen flex items-center justify-center p-4">
+    <div class="calculator w-[320px] p-6 rounded-3xl">
+        <div class="display h-20 mb-6 rounded-xl p-4 text-right overflow-hidden">
+            <div id="history" class="text-green-900 text-sm h-6"></div>
+            <div id="display" class="text-3xl text-green-900">0</div>
+        </div>
+        <div class="grid grid-cols-4 gap-4">
+            <button class="calc-btn col-span-2 p-4 rounded-xl text-gray-300 text-xl" onclick="clearDisplay()">AC</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="backspace()">⌫</button>
+            <button class="operator p-4 rounded-xl text-orange-300 text-xl" onclick="appendOperator('/')">÷</button>
+            
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('7')">7</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('8')">8</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('9')">9</button>
+            <button class="operator p-4 rounded-xl text-orange-300 text-xl" onclick="appendOperator('*')">×</button>
+            
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('4')">4</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('5')">5</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('6')">6</button>
+            <button class="operator p-4 rounded-xl text-orange-300 text-xl" onclick="appendOperator('-')">-</button>
+            
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('1')">1</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('2')">2</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('3')">3</button>
+            <button class="operator p-4 rounded-xl text-orange-300 text-xl" onclick="appendOperator('+')">+</button>
+            
+            <button class="calc-btn col-span-2 p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('0')">0</button>
+            <button class="calc-btn p-4 rounded-xl text-gray-300 text-xl" onclick="appendNumber('.')">.</button>
+            <button class="operator p-4 rounded-xl text-orange-300 text-xl" onclick="calculate()">=</button>
+        </div>
+    </div>
+
+    <script>
+        let currentInput = '';
+        let previousInput = '';
+        let operation = null;
+
+        const display = document.getElementById('display');
+        const history = document.getElementById('history');
+
+        function updateDisplay() {
+            display.textContent = currentInput || '0';
+            history.textContent = previousInput + (operation ? ` ${operation} ` : '');
+        }
+
+        function appendNumber(number) {
+            if (number === '.' && currentInput.includes('.')) return;
+            if (currentInput === '0' && number !== '.') {
+                currentInput = number;
+            } else {
+                currentInput += number;
+            }
+            updateDisplay();
+        }
+
+        function appendOperator(op) {
+            if (currentInput === '') return;
+            if (previousInput !== '') {
+                calculate();
+            }
+            operation = op;
+            previousInput = currentInput;
+            currentInput = '';
+            updateDisplay();
+        }
+
+        function calculate() {
+            if (previousInput === '' || currentInput === '') return;
+            let result;
+            const prev = parseFloat(previousInput);
+            const current = parseFloat(currentInput);
+            
+            switch(operation) {
+                case '+':
+                    result = prev + current;
+                    break;
+                case '-':
+                    result = prev - current;
+                    break;
+                case '*':
+                    result = prev * current;
+                    break;
+                case '/':
+                    result = prev / current;
+                    break;
+                default:
+                    return;
+            }
+            
+            currentInput = result.toString();
+            operation = null;
+            previousInput = '';
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '';
+            previousInput = '';
+            operation = null;
+            updateDisplay();
+        }
+
+        function backspace() {
+            currentInput = currentInput.slice(0, -1);
+            updateDisplay();
+        }
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
